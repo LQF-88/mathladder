@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Buildozer / Android
+.buildozer/
+bin/
+build/
+dist/
+*.apk
+*.aab
+*.keystore
+*.jks
+release.keystore
+buildozer.release.spec
+
+# Local reference material (copyrighted scans stay out of git)
+*.pdf
+refs/
+private/
+recovered/
+
+# Local app data
+progress.json
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
