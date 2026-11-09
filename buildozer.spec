@@ -50,3 +50,7 @@ android.keyalias =
 android.keyalias_passwd =
 
 p4a.bootstrap = sdl2
+# The develop branch now builds host Python 3.14, whose bundled pip is
+# incompatible with the build tooling. This release ships Python 3.11.5 and
+# supports Kivy 2.3.2 + NDK 25b.
+p4a.branch = v2024.01.21
