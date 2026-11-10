@@ -51,9 +51,9 @@ jobs:
             ~/.buildozer
             ~/.android
             .buildozer
-          key: buildozer-release-v2-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+          key: buildozer-release-v3-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
           restore-keys: |
-            buildozer-release-v2-${{ runner.os }}-
+            buildozer-release-v3-${{ runner.os }}-
 
       - name: Check signing secrets
         env:

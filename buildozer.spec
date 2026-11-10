@@ -20,8 +20,8 @@ version = 1.0.1
 # Keep these aligned with app/app.py (MathLadderApp.VERSION).
 # Python is pinned to 3.11 because Kivy 2.3.2 is best tested there and the
 # 3.14 hostpython bundled by newer p4a releases ships a broken pip that
-# cannot bootstrap the build virtualenv.
-requirements = python3==3.11.7,kivy==2.3.2
+# cannot bootstrap the build virtualenv. python3 and hostpython3 must match.
+requirements = python3==3.11.7,hostpython3==3.11.7,kivy==2.3.2
 orientation = portrait
 fullscreen = 0
 
