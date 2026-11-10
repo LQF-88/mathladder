@@ -15,13 +15,17 @@
 | --- | --- |
 | 目标 SDK | API 35 |
 | 最低 SDK | API 24（Android 7.0） |
+| NDK | r28c（支持 16 KB 内存页） |
+| Python / Kivy | 3.11.7 / 2.3.2 |
+| python-for-android | v2026.05.09 |
 | 架构 | arm64-v8a + armeabi-v7a |
 | 输出 | debug 为 APK；release 为 AAB |
 | 权限 | 无 |
 | 包体 | 字体约 17 MB，APK 约 40–60 MB |
 
-> 如果 CI 上的 python-for-android 版本与 API 35 / NDK 25b 不兼容，可先把
-> `android.api` 降到 34 重新构建；上架前再根据 Play Console 的提示升级 target SDK。
+> Android 15 及以上的部分设备使用 16 KB 内存页。目标 SDK 35 的应用必须让
+> 所有 64 位原生库按 16 KB 对齐，否则会安装成功但启动即闪退。NDK r28 默认
+> 生成 16 KB 对齐的库，CI 会用 `tools/check_apk_alignment.py` 自动校验。
 
 ## 1. 用 GitHub Actions 构建调试 APK
 
@@ -29,17 +33,21 @@
 
 1. 运行 `pytest` 与 `ruff check`。
 2. 在 Ubuntu 22.04 + JDK 17 上安装 Buildozer 和 Android 工具链。
-3. 缓存 `~/.buildozer`，执行 `buildozer -v android debug`。
-4. 上传 `mathladder-debug-apk` 工件（保留 30 天）。
-5. 如果触发的是 `v*` 标签，自动创建 GitHub Release 并附加 APK。
+3. 缓存 `~/.buildozer` 与 `~/.android`，执行 `buildozer -v android debug`。
+4. 运行 `tools/check_apk_alignment.py`，确认 64 位原生库支持 16 KB 页。
+5. 上传 `mathladder-debug-apk` 工件（保留 30 天）。
+6. 如果触发的是 `v*` 标签，自动创建 GitHub Release 并附加 APK。
 
 安装调试包：
 
 ```bash
-adb install -r mathladder-1.0.0-arm64-v8a_armeabi-v7a-debug.apk
+adb install -r mathladder-1.0.1-arm64-v8a_armeabi-v7a-debug.apk
 ```
 
 没有 adb 时，把 APK 传到手机，允许“安装未知来源应用”后点击安装。
+
+> 每次 CI 首次构建会生成新的 Android 调试签名。如果覆盖安装时提示“应用未安装”
+> 或“签名不一致”，先在手机上卸载旧版 MathLadder，再安装新的 APK。
 
 ## 2. 生成签名密钥
 
@@ -129,9 +137,20 @@ Buildozer 首次构建会下载数 GB 文件。GitHub Actions 已缓存 `~/.buil
 同步修改 `app/theme.py` 中的字体注册。
 
 **安装后闪退**
-先用 `adb logcat | grep -i python` 查看 Python 异常；确认 `source.include_exts` 包含
-`otf`、`wav`，且 `app/assets/` 已打进包内。也可以把 `android.archs` 暂时设为
-`arm64-v8a` 后重新构建排查。
+先确认手机不是 16 KB 内存页设备：连接 USB 并开启调试后运行
+
+```bash
+adb logcat -d | grep -E 'FATAL EXCEPTION|UnsatisfiedLinkError|16 KB|python'
+```
+
+如果日志出现 `UnsatisfiedLinkError`、`alignment` 或 `16 KB`，说明原生库没有按
+16 KB 对齐。当前配置使用 NDK r28c，CI 构建时会运行
+`python tools/check_apk_alignment.py bin/*.apk`；本地构建请确认 `android.ndk = 28c`
+且没有沿用旧的 `.buildozer` 缓存（删除 `.buildozer` 后重建）。
+
+其他 Python 异常可用 `adb logcat | grep -i python` 查看。确认
+`source.include_exts` 包含 `otf`、`wav`，且 `app/assets/` 已打进包内。也可以把
+`android.archs` 暂时设为 `arm64-v8a` 后重新构建排查。
 
 **Play Console 提示 target SDK 过低**
 提高 `android.api`，并确认 python-for-android / Buildozer 版本支持对应 SDK。

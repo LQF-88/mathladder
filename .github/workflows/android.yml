@@ -35,7 +35,7 @@ jobs:
     name: Debug APK
     needs: test
     runs-on: ubuntu-22.04
-    timeout-minutes: 90
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
 
@@ -61,16 +61,20 @@ jobs:
         with:
           path: |
             ~/.buildozer
+            ~/.android
             .buildozer
-          key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+          key: buildozer-v2-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
           restore-keys: |
-            buildozer-${{ runner.os }}-
+            buildozer-v2-${{ runner.os }}-
 
       - name: Install Buildozer
-        run: python -m pip install --upgrade pip buildozer "cython==0.29.36"
+        run: python -m pip install --upgrade pip "buildozer==1.6.0" "cython==0.29.36"
 
       - name: Build debug APK
         run: buildozer -v android debug
+
+      - name: Verify 16 KB page-size support
+        run: python tools/check_apk_alignment.py bin/*.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4

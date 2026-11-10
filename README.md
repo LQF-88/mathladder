@@ -111,12 +111,15 @@ sudo apt install -y git zip unzip openjdk-17-jdk \
   autoconf automake libtool pkg-config zlib1g-dev \
   libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
 
-python3 -m pip install buildozer "cython==0.29.36"
+python3 -m pip install "buildozer==1.6.0" "cython==0.29.36"
 buildozer -v android debug     # 输出 bin/*.apk
 buildozer -v android release   # 输出 bin/*.aab（需签名）
+
+python tools/check_apk_alignment.py bin/*.apk   # 校验 16 KB 内存页支持
 ```
 
 首次构建会下载 Android SDK/NDK，耗时较长。构建缓存位于 `~/.buildozer` 和 `.buildozer/`。
+当前配置使用 NDK r28c，生成的 64 位原生库支持 Android 15+ 的 16 KB 内存页。
 
 发布到 Google Play 前请修改 `buildozer.spec` 中的 `package.domain`（应用 ID 一旦上传不可更改）、递增 `version` 与 `android.version_code`，并配置签名密钥。
 
