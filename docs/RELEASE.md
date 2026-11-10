@@ -17,7 +17,7 @@
 | 最低 SDK | API 24（Android 7.0） |
 | NDK | r28c（支持 16 KB 内存页） |
 | Python / Kivy | 3.11.7 / 2.3.2 |
-| python-for-android | v2026.05.09 |
+| python-for-android | develop @ d2ee8c54（含 pip 自升级修复） |
 | 架构 | arm64-v8a + armeabi-v7a |
 | 输出 | debug 为 APK；release 为 AAB |
 | 权限 | 无 |

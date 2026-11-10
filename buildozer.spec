@@ -18,9 +18,8 @@ source.exclude_patterns = *.pyc,*.pyo,*.md,*.pdf,*.zip,.DS_Store
 version = 1.0.1
 
 # Keep these aligned with app/app.py (MathLadderApp.VERSION).
-# Python is pinned to 3.11 because Kivy 2.3.2 is best tested there and the
-# 3.14 hostpython bundled by newer p4a releases ships a broken pip that
-# cannot bootstrap the build virtualenv. python3 and hostpython3 must match.
+# Python is pinned to 3.11 because Kivy 2.3.2 is best tested there.
+# python3 and hostpython3 must always use the same version.
 requirements = python3==3.11.7,hostpython3==3.11.7,kivy==2.3.2
 orientation = portrait
 fullscreen = 0
@@ -58,4 +57,11 @@ android.keyalias_passwd =
 p4a.bootstrap = sdl2
 # v2026.05.09 supports NDK r28 (16 KB page sizes). The Python version is
 # pinned in `requirements` above, so this release still builds Python 3.11.
-p4a.branch = v2026.05.09
+#
+# `p4a.commit` pins a post-release fix: p4a's build virtualenv ran
+# `pip install -U pip`, which can mix modules from two pip versions and fail
+# with `ImportError: cannot import name 'open_rich_spinner'`. Upstream commit
+# d2ee8c54 removes that self-upgrade and recreates the venv with `--clear`.
+# No tagged p4a release contains the fix yet.
+p4a.branch = develop
+p4a.commit = d2ee8c54d9d42375a95f18159e950a119671cf63
