@@ -143,7 +143,7 @@ python tools/check_apk_alignment.py bin/*.apk   # 校验 16 KB 内存页支持
 │   │   ├── screens/            # 首页、阶段、做题、结果、统计、设置、关于
 │   │   └── widgets/common.py   # 自绘卡片、按钮、图表、开关等
 │   └── assets/                 # 内置中文字体、图标、音效
-├── tests/                      # 131 个引擎 / 存储测试
+├── tests/                      # 136 个引擎 / 存储测试
 ├── tools/
 │   ├── make_screenshots.py     # 自动生成文档截图
 │   ├── extract_pdf.py          # 仅本地使用的 PDF 页面提取工具

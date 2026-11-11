@@ -214,7 +214,7 @@ class HomeScreen(BaseScreen):
                 color=MUTED,
                 halign="right",
                 size_hint=(None, None),
-                size=(dp(42), dp(15)),
+                size=(dp(48), dp(15)),
             )
         )
         card.add_widget(bottom)

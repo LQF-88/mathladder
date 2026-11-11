@@ -41,7 +41,7 @@
 安装调试包：
 
 ```bash
-adb install -r mathladder-1.0.1-arm64-v8a_armeabi-v7a-debug.apk
+adb install -r mathladder-1.0.2-arm64-v8a_armeabi-v7a-debug.apk
 ```
 
 没有 adb 时，把 APK 传到手机，允许“安装未知来源应用”后点击安装。
@@ -120,7 +120,7 @@ Google Play 对新个人开发者账号有测试人数和时长要求，具体�
 - [ ] `pytest` 与 `ruff check` 通过
 - [ ] 在真机上验证做题、返回键、旋转/暂停、卸载重装
 - [ ] 构建签名 AAB 并上传 Internal testing
-- [ ] 打标签并推送：`git tag v1.0.1 && git push origin v1.0.1`
+- [ ] 打标签并推送：`git tag v1.0.2 && git push origin v1.0.2`
 - [ ] 在 GitHub Release 中补充更新说明
 
 ## 6. 常见问题

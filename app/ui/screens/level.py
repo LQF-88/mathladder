@@ -145,14 +145,14 @@ class LevelScreen(BaseScreen):
                 spacing=dp(6),
                 radius=18,
                 size_hint_y=None,
-                height=dp(86),
+                height=dp(96),
             )
-            row = BoxLayout(size_hint_y=None, height=dp(30), spacing=dp(8))
+            row = BoxLayout(size_hint_y=None, height=dp(34), spacing=dp(8))
             row.add_widget(
                 Lbl(f"本阶段错题本 · {len(mistake_records)} 道", font_size=13.5, bold=True,
-                    color=RED, size_hint_y=None, height=dp(30))
+                    color=RED, size_hint_y=None, height=dp(34),
+                    shorten=True, shorten_from="right")
             )
-            row.add_widget(BoxLayout())
             redo = PillButton(
                 text="重练错题",
                 font_size=12,
@@ -160,7 +160,7 @@ class LevelScreen(BaseScreen):
                 bg_color=list(RED),
                 text_color=list(WHITE),
                 size_hint=(None, None),
-                size=(dp(88), dp(32)),
+                size=(dp(90), dp(36)),
                 radius=11,
             )
             redo.bind(on_release=lambda *_: self._start_mistakes(mistake_records))
@@ -168,7 +168,7 @@ class LevelScreen(BaseScreen):
             mistake_card.add_widget(row)
             mistake_card.add_widget(
                 Lbl("答对后会从错题本中移除。", font_size=10, color=MUTED,
-                    size_hint_y=None, height=dp(18))
+                    size_hint_y=None, height=dp(19))
             )
             box.add_widget(mistake_card)
 

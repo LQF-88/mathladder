@@ -33,6 +33,7 @@ from app.theme import (
     TRACK,
     WHITE,
     YELLOW,
+    readable_font_size,
 )
 
 
@@ -60,7 +61,7 @@ class Lbl(Label):
         kwargs.setdefault("valign", "middle")
         super().__init__(
             text=text,
-            font_size=sp(font_size),
+            font_size=sp(readable_font_size(font_size)),
             color=color if color is not None else INK,
             bold=bold,
             halign=halign,
@@ -196,7 +197,10 @@ class PillButton(Button):
         kwargs.setdefault("background_down", "")
         kwargs.setdefault("background_color", (0, 0, 0, 0))
         kwargs.setdefault("font_name", FONT_NAME)
-        kwargs.setdefault("font_size", sp(15))
+        font_size = kwargs.get("font_size", 15)
+        if isinstance(font_size, (int, float)):
+            font_size = sp(readable_font_size(font_size))
+        kwargs["font_size"] = font_size
         kwargs.setdefault("halign", "center")
         kwargs.setdefault("valign", "middle")
         kwargs.setdefault("disabled_color", [*MUTED_LIGHT[:3], 0.7])

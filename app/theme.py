@@ -66,3 +66,15 @@ LEVEL_TINTS = {
 FONT_SIZE_TITLE = 22
 SCREEN_PAD = 16
 CARD_RADIUS = 18
+
+# The UI was originally designed with desktop-sized type, which is hard to read
+# on phones where Kivy's density is close to 1. Scale every designed font size
+# up a little, giving the smallest labels the biggest relative boost. This is
+# applied on top of Kivy's own system font-scale, not instead of it.
+FONT_SCALE = 1.15
+FONT_BOOST = 1.0
+
+
+def readable_font_size(size: float) -> float:
+    """Return a phone-friendly size for a designed font size."""
+    return size * FONT_SCALE + FONT_BOOST

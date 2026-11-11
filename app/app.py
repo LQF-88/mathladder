@@ -26,7 +26,7 @@ from app.ui.screens.stats import StatsScreen
 
 class MathLadderApp(App):
     name = "MathLadder"
-    VERSION = "1.0.1"
+    VERSION = "1.0.2"
 
     def build(self):
         self.title = "数学阶梯 · MathLadder"
