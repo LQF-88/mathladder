@@ -85,6 +85,11 @@ def stored_data_offset(handle, info: zipfile.ZipInfo) -> int | None:
     return info.header_offset + 30 + name_length + extra_length
 
 
+def is_data_bundle(blob: bytes) -> bool:
+    """Return True for p4a's ``libpybundle.so``, a gzip'ed tar of Python data."""
+    return blob[:2] == b"\x1f\x8b"
+
+
 def check_archive(path: Path) -> bool:
     print(f"检查 {path}")
     ok = True
@@ -96,8 +101,12 @@ def check_archive(path: Path) -> bool:
                 continue
             abi, filename = native
             found += 1
+            blob = archive.read(info)
+            if is_data_bundle(blob):
+                print(f"  [跳过] {abi:12} {filename:28} gzip 数据包（非 ELF）")
+                continue
             try:
-                aligns = load_segment_alignments(archive.read(info))
+                aligns = load_segment_alignments(blob)
             except ValueError as exc:
                 print(f"  [错误] {abi:12} {filename:28} {exc}")
                 ok = False

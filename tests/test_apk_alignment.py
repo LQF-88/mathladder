@@ -6,7 +6,11 @@ import struct
 
 import pytest
 
-from tools.check_apk_alignment import load_segment_alignments, native_library
+from tools.check_apk_alignment import (
+    is_data_bundle,
+    load_segment_alignments,
+    native_library,
+)
 
 
 def elf64(align: int) -> bytes:
@@ -63,3 +67,9 @@ def test_native_library_paths() -> None:
     assert native_library("base/assets/fonts/NotoSansSC-Regular.otf") is None
     assert native_library("lib/unknown-abi/libfoo.so") is None
     assert native_library("classes.dex") is None
+
+
+def test_p4a_data_bundle_is_not_an_elf() -> None:
+    # p4a packages Python's private data as libpybundle.so, a gzip'ed tarball.
+    assert is_data_bundle(b"\x1f\x8b\x08\x00payload")
+    assert not is_data_bundle(elf64(16384))
