@@ -385,7 +385,7 @@ class PracticeScreen(BaseScreen):
             filled = self.vertical_view.filled
             total = len(self.vertical_view.cells)
             if self.vertical_view.is_complete:
-                self.input_label.text = f"已填 {filled}/{total} 位，点“确定”检查"
+                self.input_label.text = "已填满 · 点“确定”检查"
             else:
                 self.input_label.text = f"从个位开始 · 已填 {filled}/{total} 位"
             self.input_label.color = INK if filled else MUTED
