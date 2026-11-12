@@ -15,7 +15,7 @@ source.include_patterns = app/assets/*
 source.exclude_dirs = tests,tools,docs,.github,.venv,__pycache__,bin,build,dist,.pytest_cache,.ruff_cache
 source.exclude_patterns = *.pyc,*.pyo,*.md,*.pdf,*.zip,.DS_Store
 
-version = 1.0.2
+version = 1.0.3
 
 # Keep these aligned with app/app.py (MathLadderApp.VERSION).
 # Python is pinned to 3.11 because Kivy 2.3.2 is best tested there.
@@ -45,7 +45,7 @@ android.allow_backup = False
 android.archs = arm64-v8a, armeabi-v7a
 android.release_artifact = aab
 android.debug_artifact = apk
-android.version_code = 3
+android.version_code = 4
 
 # Signing values are filled in by .github/workflows/android-release.yml
 # (or by you locally) before `buildozer android release`.

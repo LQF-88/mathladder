@@ -87,6 +87,27 @@ class SettingsScreen(BaseScreen):
         )
         box.add_widget(count_card)
 
+        vertical_card = Card(
+            padding=dp(16),
+            spacing=dp(2),
+            radius=18,
+            size_hint_y=None,
+            height=dp(80),
+        )
+        vertical_card.add_widget(
+            self._row(
+                "竖式输入",
+                "加减法和乘法题用竖式，逐位填写答案",
+                Toggle(
+                    active=bool(repo.get_setting("vertical_input", True)),
+                    callback=lambda value: repo.set_setting(
+                        "vertical_input", bool(value)
+                    ),
+                ),
+            )
+        )
+        box.add_widget(vertical_card)
+
         box.add_widget(self._section_title("答题反馈"))
         feedback_card = Card(
             padding=dp(16),

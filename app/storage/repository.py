@@ -32,6 +32,7 @@ def _default_data() -> dict[str, Any]:
             "questions_per_session": 20,
             "sound": True,
             "auto_next": False,
+            "vertical_input": True,
         },
         "progress": {},
         "sessions": [],

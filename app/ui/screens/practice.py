@@ -12,6 +12,7 @@ from kivy.uix.gridlayout import GridLayout
 from app.engine.checker import is_correct
 from app.engine.curriculum import TOPIC_BY_KEY
 from app.engine.models import INPUT_CHOICE, SessionResult
+from app.engine.vertical import vertical_problem
 from app.theme import (
     CREAM_DARK,
     GREEN,
@@ -36,6 +37,7 @@ from app.ui.widgets.common import (
     format_seconds,
     spacer,
 )
+from app.ui.widgets.vertical import VerticalProblemView
 
 
 class PracticeScreen(BaseScreen):
@@ -143,6 +145,7 @@ class PracticeScreen(BaseScreen):
         self._auto_event = None
         self._ok_button = None
         self._rendered_choices: list[PillButton] = []
+        self.vertical_view: VerticalProblemView | None = None
 
     # -- session lifecycle ------------------------------------------------
     def start(self, level_code, topic_key, questions, from_mistakes=False):
@@ -192,6 +195,7 @@ class PracticeScreen(BaseScreen):
             self.app.open_home()
             return
         self._cancel_auto()
+        self._clear_vertical()
         question = self.questions[self.index]
         topic = TOPIC_BY_KEY.get(question.topic)
         self.topic_label.text = topic.name if topic else ""
@@ -199,8 +203,39 @@ class PracticeScreen(BaseScreen):
         self.counter_label.text = f"第 {self.index + 1} / {len(self.questions)} 题"
         self.score_label.text = f"答对 {self.correct_count} 题"
         self.progress.value = self.index / max(1, len(self.questions))
-        self.prompt_label.text = question.prompt
-        plain_len = len(question.prompt)
+        self.answered = False
+        self.typed = ""
+        self._ok_button = None
+        self._rendered_choices = []
+
+        problem = None
+        if self.app.repo.get_setting("vertical_input", True):
+            problem = vertical_problem(question)
+        if problem is not None:
+            self.prompt_label.text = ""
+            self.prompt_label.size_hint_y = None
+            self.prompt_label.height = 0
+            self.vertical_view = VerticalProblemView(
+                problem, on_change=self._update_input
+            )
+            self.question_card.add_widget(self.vertical_view)
+        else:
+            self.prompt_label.text = question.prompt
+            self.prompt_label.size_hint_y = 1
+            self._fit_prompt(question.prompt)
+
+        if question.input_type == INPUT_CHOICE:
+            self._build_choices(question)
+        else:
+            self._build_keypad()
+
+    def _clear_vertical(self):
+        if self.vertical_view is not None:
+            self.question_card.remove_widget(self.vertical_view)
+            self.vertical_view = None
+
+    def _fit_prompt(self, prompt: str):
+        plain_len = len(prompt)
         if self.level in ("5A", "4A", "3A", "2A"):
             size = 32 if plain_len < 70 else 27
         elif self.level in ("A", "B", "C", "D"):
@@ -212,14 +247,6 @@ class PracticeScreen(BaseScreen):
         if plain_len > 110:
             size = min(size, 18)
         self.prompt_label.font_size = dp(size)
-        self.answered = False
-        self.typed = ""
-        self._ok_button = None
-        self._rendered_choices = []
-        if question.input_type == INPUT_CHOICE:
-            self._build_choices(question)
-        else:
-            self._build_keypad()
 
     def _build_choices(self, question):
         self.answer_box.clear_widgets()
@@ -244,6 +271,7 @@ class PracticeScreen(BaseScreen):
     def _build_keypad(self):
         self.answer_box.clear_widgets()
         self.answer_box.height = dp(304)
+        vertical = self.vertical_view is not None
         input_card = Card(
             bg_color=list(INDIGO_SOFT),
             padding=dp(8),
@@ -252,7 +280,7 @@ class PracticeScreen(BaseScreen):
             height=dp(52),
         )
         self.input_label = Lbl(
-            "点下面数字键输入答案",
+            "从个位开始，一位一位填写" if vertical else "点下面数字键输入答案",
             font_size=17,
             bold=True,
             color=MUTED,
@@ -264,25 +292,46 @@ class PracticeScreen(BaseScreen):
         self.answer_box.add_widget(input_card)
         self.answer_box.add_widget(spacer(1))
 
-        grid = GridLayout(cols=4, spacing=dp(7), size_hint_y=None, height=dp(224))
-        keys = [
-            ("1", "1"),
-            ("2", "2"),
-            ("3", "3"),
-            ("退格", "back"),
-            ("4", "4"),
-            ("5", "5"),
-            ("6", "6"),
-            ("/", "/"),
-            ("7", "7"),
-            ("8", "8"),
-            ("9", "9"),
-            ("-", "-"),
-            (".", "."),
-            ("0", "0"),
-            ("清空", "clear"),
-            ("确定", "ok"),
-        ]
+        grid = GridLayout(
+            cols=3 if vertical else 4,
+            spacing=dp(7),
+            size_hint_y=None,
+            height=dp(224),
+        )
+        if vertical:
+            keys = [
+                ("1", "1"),
+                ("2", "2"),
+                ("3", "3"),
+                ("4", "4"),
+                ("5", "5"),
+                ("6", "6"),
+                ("7", "7"),
+                ("8", "8"),
+                ("9", "9"),
+                ("退格", "back"),
+                ("0", "0"),
+                ("确定", "ok"),
+            ]
+        else:
+            keys = [
+                ("1", "1"),
+                ("2", "2"),
+                ("3", "3"),
+                ("退格", "back"),
+                ("4", "4"),
+                ("5", "5"),
+                ("6", "6"),
+                ("/", "/"),
+                ("7", "7"),
+                ("8", "8"),
+                ("9", "9"),
+                ("-", "-"),
+                (".", "."),
+                ("0", "0"),
+                ("清空", "clear"),
+                ("确定", "ok"),
+            ]
         for label, action in keys:
             if action == "ok":
                 button = PillButton(
@@ -332,6 +381,17 @@ class PracticeScreen(BaseScreen):
     def _update_input(self):
         if not hasattr(self, "input_label"):
             return
+        if self.vertical_view is not None:
+            filled = self.vertical_view.filled
+            total = len(self.vertical_view.cells)
+            if self.vertical_view.is_complete:
+                self.input_label.text = f"已填 {filled}/{total} 位，点“确定”检查"
+            else:
+                self.input_label.text = f"从个位开始 · 已填 {filled}/{total} 位"
+            self.input_label.color = INK if filled else MUTED
+            if self._ok_button is not None:
+                self._ok_button.disabled = not self.vertical_view.is_complete
+            return
         if self.typed:
             self.input_label.text = self.typed
             self.input_label.color = INK
@@ -343,6 +403,10 @@ class PracticeScreen(BaseScreen):
 
     def _append(self, char: str):
         if self.answered:
+            return
+        if self.vertical_view is not None:
+            if char.isdigit():
+                self.vertical_view.input_digit(char)
             return
         if char == "-":
             if self.typed:
@@ -360,6 +424,12 @@ class PracticeScreen(BaseScreen):
     def _edit(self, action: str):
         if self.answered:
             return
+        if self.vertical_view is not None:
+            if action == "back":
+                self.vertical_view.backspace()
+            else:
+                self.vertical_view.clear()
+            return
         if action == "back":
             self.typed = self.typed[:-1]
         else:
@@ -367,6 +437,11 @@ class PracticeScreen(BaseScreen):
         self._update_input()
 
     def _confirm_typed(self):
+        if self.vertical_view is not None:
+            value = self.vertical_view.value
+            if value:
+                self._submit(value)
+            return
         if self.typed:
             self._submit(self.typed)
 
@@ -375,6 +450,8 @@ class PracticeScreen(BaseScreen):
         if self.answered or not self.questions:
             return
         self.answered = True
+        if self.vertical_view is not None:
+            self.vertical_view.locked = True
         question = self.questions[self.index]
         correct = is_correct(question, user_answer)
         if correct:

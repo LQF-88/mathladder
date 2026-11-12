@@ -116,13 +116,18 @@ class ScreenshotApp(MathLadderApp):
         pass
 
     def _start_demo_practice(self):
-        self.start_practice("C", topic_key="C.table", count=10)
+        self.start_practice("C", topic_key="C.x1", count=10)
 
     def _answer_demo_question(self):
         screen = self.practice_screen
         if not screen.questions:
             return
         question = screen.questions[screen.index]
+        if screen.vertical_view is not None:
+            for digit in reversed(question.answer):
+                screen.vertical_view.input_digit(digit)
+            screen._confirm_typed()
+            return
         screen._submit(question.answer)
 
     def _show_demo_result(self):
@@ -130,7 +135,7 @@ class ScreenshotApp(MathLadderApp):
         wrong_questions = questions[8:]
         result = SessionResult(
             level="C",
-            topic="C.table",
+            topic="C.x1",
             total=10,
             correct=8,
             seconds=168,
